@@ -21,6 +21,7 @@ rlock=threading.RLock()
 class ExeThread(threading.Thread):
     def __init__(self, path):
         self.path=path
+        self.cnts=''
         super(ExeThread, self).__init__()
     def run(self):
         #同步锁
@@ -30,20 +31,22 @@ class ExeThread(threading.Thread):
         temp.seek(index)
         for i in range(100):
             cnt=temp.readline()
-            exee(cnt)
+            self.cnts +=cnt
             index+=len(cnt)+1
         #同步锁
         rlock.release()
-def exee(cnt):
-    if len(cnt)==0:
-        return
-    url, tag, code=cnt.split('|')
-    a=urllib2.urlopen(url)
-    content=a.read()
-    if tag in content and int(code)==a.code:
-        pass
-    else:
-        print('%serror'%cnt)
-path='f:/temp/html.txt'
+        exee(self.cnts)
+def exee(cnts):
+    for cnt in cnts:
+        if len(cnt)==0:
+            return
+        url, tag, code=cnt.split('|')
+        a=urllib2.urlopen(url)
+        content=a.read()
+        if tag in content and int(code)==a.code:
+            pass
+        else:
+            print('%serror'%cnt)
+path='f:/22.txt'
 for i in range(100):
     exec('th=ExeThread(path);th.start()')
